@@ -18,7 +18,8 @@ export class App extends Component {
     staticPage: 1,
     page: 1,
     testInputValue: '',
-    liKeyArray: []
+    liKeyArray: [],
+    btnBull: false
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -33,22 +34,37 @@ export class App extends Component {
 
       try {
         const response = await fetch(
-          `https://pixabay.com/api/?key=25829812-d39cfe0a6889efb95d5c21ab8&q=${inputValue}&webformatURL&largeImageURL&page=${page}&per_page=${12}`
+          `https://pixabay.com/api/?key=25829812-d39cfe0a6889efb95d5c21ab8&q=${inputValue}&webformatURL&largeImageURL&page=${page}&per_page=${12}&total`
         );
         const users = await response.json();
-        if (this.state.formAnswer === []) {
+
+        if (this.state.formAnswer.length === 0) {
           this.setState({
             featchAnswer: users.hits,
+            btnBull: true,
           });
-
+          if (users.hits.length < 12) {
+            this.setState({
+              btnBull: false,
+            });
+            console.log(users.hits.length);
+          }
         }
-        if (this.state.formAnswer !== []) {
+
+        if (this.state.formAnswer.length !== 0) {
           this.setState({
             formAnswer: [
               ...this.state.formAnswer,
               ...users.hits,
             ],
+            btnBull: true,
           });
+          if (users.hits.length < 12) {
+            console.log(users.hits.length);
+            this.setState({
+              btnBull: false,
+            });
+          }
 
         }
       } catch (error) {
@@ -75,15 +91,12 @@ export class App extends Component {
   };
   formSubmit = event => {
     event.preventDefault();
-    this.setState({
-      inputValue: this.state.testInputValue,
-    });
     const featchAnswer = this.state.featchAnswer;
     this.setState({
-      formAnswer: featchAnswer,
-    });
-    this.setState({
       page: this.state.staticPage,
+      formAnswer: featchAnswer,
+      inputValue: this.state.testInputValue,
+      featchAnswer: [],
     });
   };
   handleClick = event => {
@@ -111,7 +124,7 @@ export class App extends Component {
           gallery={this.state.formAnswer}
           handleClick={this.handleClick}
         />
-        {this.state.formAnswer.length > 0 && (
+        {this.state.btnBull === true && (
           <Button nextPageFunk={this.nextPage} />
         )}
         {this.state.modal !== '' && (
