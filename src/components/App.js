@@ -40,7 +40,7 @@ export class App extends Component {
 
         if (this.state.formAnswer.length === 0) {
           this.setState({
-            featchAnswer: users.hits,
+            formAnswer: users.hits,
             btnBull: true,
           });
           if (users.hits.length < 12) {
