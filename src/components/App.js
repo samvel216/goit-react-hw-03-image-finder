@@ -23,7 +23,8 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    const { inputValue, page } = this.state;
+    const { inputValue, page, formAnswer } = this.state;
+    const perPage = 12;
     if (
       prevState.inputValue !== inputValue ||
       prevState.page !== page
@@ -34,16 +35,16 @@ export class App extends Component {
 
       try {
         const response = await fetch(
-          `https://pixabay.com/api/?key=25829812-d39cfe0a6889efb95d5c21ab8&q=${inputValue}&webformatURL&largeImageURL&page=${page}&per_page=${12}&total`
+          `https://pixabay.com/api/?key=25829812-d39cfe0a6889efb95d5c21ab8&q=${inputValue}&webformatURL&largeImageURL&page=${page}&per_page=${perPage}&total`
         );
         const users = await response.json();
 
-        if (this.state.formAnswer.length === 0) {
+        if (formAnswer.length === 0) {
           this.setState({
             formAnswer: users.hits,
             btnBull: true,
           });
-          if (users.hits.length < 12) {
+          if (users.hits.length < perPage) {
             this.setState({
               btnBull: false,
             });
@@ -51,10 +52,10 @@ export class App extends Component {
           }
         }
 
-        if (this.state.formAnswer.length !== 0) {
+        if (formAnswer.length !== 0) {
           this.setState({
             formAnswer: [
-              ...this.state.formAnswer,
+              ...formAnswer,
               ...users.hits,
             ],
             btnBull: true,
@@ -91,11 +92,11 @@ export class App extends Component {
   };
   formSubmit = event => {
     event.preventDefault();
-    const featchAnswer = this.state.featchAnswer;
+    const { featchAnswer, staticPage, testInputValue } = this.state;
     this.setState({
-      page: this.state.staticPage,
+      page: staticPage,
       formAnswer: featchAnswer,
-      inputValue: this.state.testInputValue,
+      inputValue: testInputValue,
       featchAnswer: [],
     });
   };
@@ -107,29 +108,29 @@ export class App extends Component {
 
   };
   render() {
+    const { formAnswer, modal, btnBull, isLoading } = this.state;
     const { inputValue } = this.state.inputValue;
     return (
       <div className={styles.container}>
 
         <Searchbar
-
           value={inputValue}
           handleChange={this.handleChange}
           formSubmit={this.formSubmit}
         />
         ;
 
-        {this.state.isLoading === true && <Loader />}
+        {isLoading === true && <Loader />}
         <ImageGallery
-          gallery={this.state.formAnswer}
+          gallery={formAnswer}
           handleClick={this.handleClick}
         />
-        {this.state.btnBull === true && (
+        {btnBull === true && (
           <Button nextPageFunk={this.nextPage} />
         )}
-        {this.state.modal !== '' && (
+        {modal !== '' && (
           <Modal
-            src={this.state.modal}
+            src={modal}
             onClose={this.onClose}
           />
         )}
